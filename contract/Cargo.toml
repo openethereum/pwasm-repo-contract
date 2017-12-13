@@ -1,0 +1,16 @@
+[package]
+name = "pwasm-repo-contract"
+version = "0.1.0"
+authors = ["Alexey Frolov <frol.rage@gmail.com>"]
+
+[dependencies]
+pwasm-std = "0.2"
+pwasm-abi = { git = "https://github.com/paritytech/pwasm-abi" }
+pwasm-abi-derive = { git = "https://github.com/paritytech/pwasm-abi" }
+pwasm-token-contract = { path = "../../pwasm-token-example/contract" }
+
+[dev-dependencies]
+pwasm-test = { git = "https://github.com/paritytech/pwasm-test" }
+
+[features]
+std = ["pwasm-std/std"]

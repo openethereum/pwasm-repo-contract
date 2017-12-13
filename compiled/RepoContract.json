@@ -1,0 +1,97 @@
+[
+  {
+    "type": "function",
+    "name": "accept",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue",
+        "type": "bool"
+      }
+    ],
+    "constant": false
+  },
+  {
+    "type": "function",
+    "name": "terminate",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue",
+        "type": "bool"
+      }
+    ],
+    "constant": false
+  },
+  {
+    "type": "event",
+    "name": "LenderAcceptance",
+    "inputs": []
+  },
+  {
+    "type": "event",
+    "name": "BorrowerAcceptance",
+    "inputs": []
+  },
+  {
+    "type": "event",
+    "name": "Activation",
+    "inputs": []
+  },
+  {
+    "type": "event",
+    "name": "Refund",
+    "inputs": []
+  },
+  {
+    "type": "event",
+    "name": "Default",
+    "inputs": []
+  },
+  {
+    "type": "event",
+    "name": "Suicide",
+    "inputs": []
+  },
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "borrower",
+        "type": "address"
+      },
+      {
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "name": "loan_token",
+        "type": "address"
+      },
+      {
+        "name": "security_token",
+        "type": "address"
+      },
+      {
+        "name": "loan_amount",
+        "type": "uint256"
+      },
+      {
+        "name": "security_amount",
+        "type": "uint256"
+      },
+      {
+        "name": "interest_rate",
+        "type": "uint256"
+      },
+      {
+        "name": "activation_deadline",
+        "type": "uint64"
+      },
+      {
+        "name": "return_deadline",
+        "type": "uint64"
+      }
+    ]
+  }
+]
