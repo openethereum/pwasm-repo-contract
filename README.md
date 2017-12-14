@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/paritytech/pwasm-token-example.svg?branch=master)](https://travis-ci.org/paritytech/pwasm-repo-contract)
+## Description
+A simple contract allows to lend some amount of particular token for some interest. It demonstrates how WASM contracts can communicate with each other through ABI. It shows also how to mock callee contract in the test environment.
 ## Build prerequisites
 - rust with `wasm32-unknown-emscripten` target - instruction to setup can be found [here](https://hackernoon.com/compiling-rust-to-webassembly-guide-411066a69fde)
 - make sure `emcc` tool is in the `PATH` since build script uses it internally
