@@ -83,7 +83,6 @@ impl Storage {
     }
 }
 
-
 #[eth_abi(Endpoint, Client)]
 pub trait RepoContract {
     fn constructor(&mut self,
