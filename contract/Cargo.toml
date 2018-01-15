@@ -22,4 +22,4 @@ default-features = false
 pwasm-test = { git = "https://github.com/paritytech/pwasm-test" }
 
 [features]
-std = ["pwasm-std/std", "pwasm-ethereum/std"]
+std = ["pwasm-std/std", "pwasm-ethereum/std", "pwasm-token-contract/std"]
