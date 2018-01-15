@@ -8,10 +8,11 @@ pwasm-std = "0.3"
 pwasm-abi = { git = "https://github.com/paritytech/pwasm-abi" }
 pwasm-repo-contract = { path = "contract" }
 
-[[bin]]
-name = "repo"
+[lib]
+crate-type = ["cdylib"]
 path = "src/repo.rs"
 
 [profile.release]
 panic = "abort"
 lto = true
+opt-level = "z"
