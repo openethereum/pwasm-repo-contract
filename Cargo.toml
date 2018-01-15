@@ -4,14 +4,15 @@ version = "0.1.0"
 authors = ["Alexey Frolov <frol.rage@gmail.com>"]
 
 [dependencies]
-pwasm-std = "0.2"
+pwasm-std = "0.3"
 pwasm-abi = { git = "https://github.com/paritytech/pwasm-abi" }
 pwasm-repo-contract = { path = "contract" }
 
-[[bin]]
-name = "repo"
+[lib]
+crate-type = ["cdylib"]
 path = "src/repo.rs"
 
 [profile.release]
 panic = "abort"
 lto = true
+opt-level = "z"

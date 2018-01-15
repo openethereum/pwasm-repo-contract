@@ -6,19 +6,23 @@
 #![allow(non_snake_case)]
 
 extern crate alloc;
+extern crate bigint;
+extern crate parity_hash;
 extern crate pwasm_std;
+extern crate pwasm_ethereum;
 extern crate pwasm_abi;
 extern crate pwasm_abi_derive;
 extern crate pwasm_token_contract;
 
 use pwasm_std::hash::{Address, H256};
-use pwasm_std::bigint::U256;
+use bigint::U256;
 use pwasm_abi_derive::eth_abi;
 
 use pwasm_token_contract::TokenContract;
 use pwasm_token_contract::Client as Token;
 
-use pwasm_std::{ext, storage, Vec};
+use pwasm_ethereum::{ext, storage};
+use pwasm_std::Vec;
 
 // Generates storage keys. Each key = previous_key + 1. 256 keys max
 macro_rules! storage_keys {
@@ -191,6 +195,14 @@ impl RepoContractInstance {
     pub fn is_active(&mut self) -> bool {
         self.borrower_acceptance() && self.lender_acceptance()
     }
+
+    pub fn suicide(&mut self, sender: &Address) -> bool {
+        self.Suicide();
+        if cfg!(test) {
+            return false
+        }
+        ext::suicide(sender);
+    }
 }
 
 impl RepoContract for RepoContractInstance {
@@ -224,8 +236,7 @@ impl RepoContract for RepoContractInstance {
             panic!("Cannot accept, contract has activated already");
         }
         if ext::timestamp() > self.activation_deadline() {
-            self.Suicide();
-            ext::suicide(&sender);
+            self.suicide(&sender);
         }
         let lender_address = self.lender_address();
         let borrower_address = self.borrower_address();
@@ -265,8 +276,7 @@ impl RepoContract for RepoContractInstance {
     fn terminate(&mut self) -> bool {
         let sender = ext::sender();
         if !self.is_active() && ext::timestamp() > self.activation_deadline() {
-            self.Suicide();
-            ext::suicide(&sender);
+            self.suicide(&sender);
         }
         let lender_address = self.lender_address();
         let borrower_address = self.borrower_address();
@@ -284,17 +294,11 @@ impl RepoContract for RepoContractInstance {
             assert!(loan_token.transferFrom(borrower_address, lender_address, return_amount));
             assert!(security_token.transfer(borrower_address, security_amount));
             self.Refund();
-            if cfg!(test) {
-                return false
-            }
-            ext::suicide(&sender);
+            self.suicide(&sender)
         } else {
             assert!(security_token.transfer(lender_address, security_amount));
             self.Default();
-            if cfg!(test) {
-                return false
-            }
-            ext::suicide(&sender);
+            self.suicide(&sender)
         }
     }
 }
@@ -312,7 +316,7 @@ mod tests {
     use pwasm_test;
     use super::*;
     use self::pwasm_test::{Error, ExternalBuilder, ExternalInstance, get_external, set_external};
-    use pwasm_std::bigint::U256;
+    use bigint::U256;
     use pwasm_std::hash::{Address, H160, H256};
     use pwasm_abi::eth::EndpointInterface;
 
@@ -538,14 +542,13 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn should_suicide_if_activation_deadline_came() {
         let mut contract = default_contract();
         set_external(Box::new(ExternalBuilder::new()
             .sender(BORROWER_ADDR)
             .timestamp(11)
             .build()));
-        contract.accept();
+        assert_eq!(contract.accept(), false);
     }
 
     // Active contract tests
