@@ -35,7 +35,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "num-traits"
-version = "0.1.41"
+version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -50,7 +50,7 @@ dependencies = [
 [[package]]
 name = "pwasm-abi"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/pwasm-abi#78e531a6c0dffba901e337810ae1defdcc50c087"
+source = "git+https://github.com/paritytech/pwasm-abi#dd2d168af461f8723ffdce992abca1558d634e74"
 dependencies = [
  "bigint 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "byteorder 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -61,7 +61,7 @@ dependencies = [
 [[package]]
 name = "pwasm-abi-derive"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/pwasm-abi#78e531a6c0dffba901e337810ae1defdcc50c087"
+source = "git+https://github.com/paritytech/pwasm-abi#dd2d168af461f8723ffdce992abca1558d634e74"
 dependencies = [
  "byteorder 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-hash 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -136,7 +136,7 @@ dependencies = [
 [[package]]
 name = "pwasm-token-contract"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/pwasm-token-example#a1a44b9004de742b2d67072c590252d99e285ad4"
+source = "git+https://github.com/paritytech/pwasm-token-example#fc152dead248cb1d3f178c15725ca8242cb21dbd"
 dependencies = [
  "bigint 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-hash 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -209,7 +209,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "dtoa 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "itoa 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "num-traits 0.1.41 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits 0.1.42 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.27 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -248,7 +248,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum crunchy 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "a2f4a431c5c9f662e1200b7c7f02c34e91361150e382089a8f2dec3ba680cbda"
 "checksum dtoa 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "09c3753c3db574d215cba4ea76018483895d7bff25a31b49ba45db21c48e50ab"
 "checksum itoa 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "8324a32baf01e2ae060e9de58ed0bc2320c9a2833491ee36cd3b4c414de4db8c"
-"checksum num-traits 0.1.41 (registry+https://github.com/rust-lang/crates.io-index)" = "cacfcab5eb48250ee7d0c7896b51a2c5eec99c1feea5f32025635f5ae4b00070"
+"checksum num-traits 0.1.42 (registry+https://github.com/rust-lang/crates.io-index)" = "9936036cc70fe4a8b2d338ab665900323290efb03983c86cbe235ae800ad8017"
 "checksum parity-hash 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "fdd741c00934b85b6fe9d7520274962f2a73a12351c96b2ac938f68afad6b213"
 "checksum pwasm-abi 0.1.0 (git+https://github.com/paritytech/pwasm-abi)" = "<none>"
 "checksum pwasm-abi-derive 0.1.0 (git+https://github.com/paritytech/pwasm-abi)" = "<none>"
