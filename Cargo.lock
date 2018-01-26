@@ -50,7 +50,7 @@ dependencies = [
 [[package]]
 name = "pwasm-abi"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/pwasm-abi#dd2d168af461f8723ffdce992abca1558d634e74"
+source = "git+https://github.com/paritytech/pwasm-abi#5a8f7323789aa364833b58d76b45f7aead0c4a13"
 dependencies = [
  "bigint 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "byteorder 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -61,7 +61,7 @@ dependencies = [
 [[package]]
 name = "pwasm-abi-derive"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/pwasm-abi#dd2d168af461f8723ffdce992abca1558d634e74"
+source = "git+https://github.com/paritytech/pwasm-abi#5a8f7323789aa364833b58d76b45f7aead0c4a13"
 dependencies = [
  "byteorder 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-hash 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -85,7 +85,7 @@ dependencies = [
 [[package]]
 name = "pwasm-ethereum"
 version = "0.1.0"
-source = "git+https://github.com/nikvolf/pwasm-ethereum#789a218736dd19b89ed1e7dbed98496da82c2a2f"
+source = "git+https://github.com/nikvolf/pwasm-ethereum#3b66d52901b19de1014a556b3aab8789ad0dc1ed"
 dependencies = [
  "bigint 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "byteorder 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -136,7 +136,7 @@ dependencies = [
 [[package]]
 name = "pwasm-token-contract"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/pwasm-token-example#fc152dead248cb1d3f178c15725ca8242cb21dbd"
+source = "git+https://github.com/paritytech/pwasm-token-example#39c28576cddaf93f862cc20f2387b5f4398e0b2b"
 dependencies = [
  "bigint 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-hash 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -21,7 +21,7 @@ use pwasm_abi_derive::eth_abi;
 use pwasm_token_contract::TokenContract;
 use pwasm_token_contract::Client as Token;
 
-use pwasm_ethereum::{ext, storage};
+use pwasm_ethereum as eth;
 use pwasm_std::Vec;
 
 // Generates storage keys. Each key = previous_key + 1. 256 keys max
@@ -64,7 +64,7 @@ impl Storage {
             }
         }
         // Second: read from the storage
-        let value = storage::read(key);
+        let value = eth::read(key);
         self.table.push(Entry {
             key: key.clone(),
             value: value.clone()
@@ -73,7 +73,7 @@ impl Storage {
     }
 
     fn write(&mut self, key: &H256, value: &[u8; 32]) {
-        storage::write(key, value);
+        eth::write(key, value);
         for entry in &mut self.table {
             if *key == entry.key {
                 entry.value = *value;
@@ -201,7 +201,7 @@ impl RepoContractInstance {
         if cfg!(test) {
             return false
         }
-        ext::suicide(sender);
+        eth::suicide(sender);
     }
 }
 
@@ -231,11 +231,11 @@ impl RepoContract for RepoContractInstance {
 
     // Tries to activate contract
     fn accept(&mut self) -> bool {
-        let sender = ext::sender();
+        let sender = eth::sender();
         if self.is_active() {
             panic!("Cannot accept, contract has activated already");
         }
-        if ext::timestamp() > self.activation_deadline() {
+        if eth::timestamp() > self.activation_deadline() {
             self.suicide(&sender);
         }
         let lender_address = self.lender_address();
@@ -264,7 +264,7 @@ impl RepoContract for RepoContractInstance {
         let loan_amount = self.loan_amount();
         let security_amount = self.security_amount();
 
-        let this_contract_address = ext::address();
+        let this_contract_address = eth::address();
         // Transfer security from borrower_address to the contract address
         assert!(security_token.transferFrom(borrower_address, this_contract_address, security_amount));
         // Transfer loan to the borrower address
@@ -274,8 +274,8 @@ impl RepoContract for RepoContractInstance {
     }
 
     fn terminate(&mut self) -> bool {
-        let sender = ext::sender();
-        if !self.is_active() && ext::timestamp() > self.activation_deadline() {
+        let sender = eth::sender();
+        if !self.is_active() && eth::timestamp() > self.activation_deadline() {
             self.suicide(&sender);
         }
         let lender_address = self.lender_address();
@@ -287,7 +287,7 @@ impl RepoContract for RepoContractInstance {
         let interest_amount = (loan_amount / DIVISOR) * self.interest_rate();
         let return_amount = loan_amount + interest_amount;
 
-        if ext::timestamp() <= self.return_deadline() {
+        if eth::timestamp() <= self.return_deadline() {
             if sender != borrower_address {
                 panic!("Only borrower can terminate contract if deadline hasn't came");
             }
