@@ -315,10 +315,9 @@ mod tests {
 
     use pwasm_test;
     use super::*;
-    use self::pwasm_test::{Error, ExternalBuilder, ExternalInstance, get_external, set_external};
+    use self::pwasm_test::{ext_get, ext_update, ext_reset};
     use bigint::U256;
     use pwasm_std::hash::{Address, H160, H256};
-    use pwasm_abi::eth::EndpointInterface;
 
     // Can't just alias Address for tuple struct initialization. Seems like a compiller bug
     static BORROWER_ADDR: Address = H160([
@@ -340,7 +339,7 @@ mod tests {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-    use self::pwasm_token_contract::{TokenContract, Endpoint};
+    use self::pwasm_token_contract::{TokenContract, Endpoint as TokenEndpoint};
 
     #[derive(Default)]
     struct TokenMock {
@@ -386,18 +385,6 @@ mod tests {
         }
     }
 
-    fn ext_builder() -> ExternalBuilder {
-        ExternalBuilder::from(get_external::<ExternalInstance>())
-    }
-
-    fn make_token_endpoint(token: TokenMock) -> Box<FnMut(U256, &[u8], &mut [u8]) -> Result<(), Error>> {
-        let mut endpoint = Endpoint::new(token);
-        Box::new(move |_val, input, result| {
-            result.copy_from_slice(&endpoint.dispatch(input));
-            Ok(())
-        })
-    }
-
     fn default_contract() -> RepoContractInstance {
         let mut contract = RepoContractInstance::new();
         let loan_amount: U256 = 10000.into();
@@ -418,70 +405,66 @@ mod tests {
     }
 
     fn active_contract() -> RepoContractInstance {
-        set_external(Box::new(ExternalBuilder::new()
+        ext_reset(|e| e
             .sender(BORROWER_ADDR)
             .timestamp(5)
-            .endpoint(LOAN_TOKEN_ADDR,
-                make_token_endpoint(TokenMock::default().with_transfer_from(true)))
-            .endpoint(SECURITY_TOKEN_ADDR,
-                make_token_endpoint(TokenMock::default().with_transfer_from(true)))
-            .build()));
+            .endpoint(LOAN_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer_from(true)).into())
+            .endpoint(SECURITY_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer_from(true)).into())
+        );
         let mut contract = default_contract();
         contract.accept();
-        let spenderExternal = ext_builder().sender(LENDER_ADDR).build();
-        set_external(Box::new(spenderExternal));
+        ext_update(|e| e.sender(LENDER_ADDR));
         contract.accept();
         contract
     }
 
-    test_with_external!(
-        ExternalBuilder::new().build(),
-        should_create_contract_with_storage {
-            let mut contract = RepoContractInstance::new();
-            let loan_amount: U256 = 10000.into();
-            let security_amount: U256 = 50000.into();
-            let interest_rate: U256 = 3.into();
-            let activation_deadline: u64 = 10;
-            let return_deadline: u64 = 20;
+    #[test]
+    fn should_create_contract_with_storage () {
+        ext_reset(|e| e);
+        let mut contract = RepoContractInstance::new();
+        let loan_amount: U256 = 10000.into();
+        let security_amount: U256 = 50000.into();
+        let interest_rate: U256 = 3.into();
+        let activation_deadline: u64 = 10;
+        let return_deadline: u64 = 20;
 
-            contract.constructor(BORROWER_ADDR.clone(),
-                LENDER_ADDR.clone(),
-                LOAN_TOKEN_ADDR.clone(),
-                SECURITY_TOKEN_ADDR.clone(),
-                loan_amount,
-                security_amount,
-                interest_rate,
-                activation_deadline,
-                return_deadline);
+        contract.constructor(BORROWER_ADDR.clone(),
+            LENDER_ADDR.clone(),
+            LOAN_TOKEN_ADDR.clone(),
+            SECURITY_TOKEN_ADDR.clone(),
+            loan_amount,
+            security_amount,
+            interest_rate,
+            activation_deadline,
+            return_deadline);
 
-            assert_eq!(contract.borrower_address(), BORROWER_ADDR);
-            assert_eq!(contract.lender_address(), LENDER_ADDR);
-            assert_eq!(contract.loan_token_address(), LOAN_TOKEN_ADDR);
-            assert_eq!(contract.security_token_address(), SECURITY_TOKEN_ADDR);
-            assert_eq!(contract.loan_amount(), loan_amount);
-            assert_eq!(contract.security_amount(), security_amount);
-            assert_eq!(contract.interest_rate(), interest_rate);
-            assert_eq!(contract.activation_deadline(), activation_deadline);
-            assert_eq!(contract.return_deadline(), return_deadline);
-        }
-    );
+        assert_eq!(contract.borrower_address(), BORROWER_ADDR);
+        assert_eq!(contract.lender_address(), LENDER_ADDR);
+        assert_eq!(contract.loan_token_address(), LOAN_TOKEN_ADDR);
+        assert_eq!(contract.security_token_address(), SECURITY_TOKEN_ADDR);
+        assert_eq!(contract.loan_amount(), loan_amount);
+        assert_eq!(contract.security_amount(), security_amount);
+        assert_eq!(contract.interest_rate(), interest_rate);
+        assert_eq!(contract.activation_deadline(), activation_deadline);
+        assert_eq!(contract.return_deadline(), return_deadline);
+    }
 
     #[test]
     fn should_activate_contract () {
-        set_external(Box::new(ExternalBuilder::new()
+        ext_reset(|e| e
             .sender(BORROWER_ADDR)
             .timestamp(5)
-            .endpoint(LOAN_TOKEN_ADDR, make_token_endpoint(TokenMock::default().with_transfer_from(true)))
-            .endpoint(SECURITY_TOKEN_ADDR, make_token_endpoint(TokenMock::default().with_transfer_from(true)))
-            .build()));
+            .endpoint(LOAN_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer_from(true)).into())
+            .endpoint(SECURITY_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer_from(true)).into())
+        );
+
         let mut contract = default_contract();
         assert_eq!(contract.accept(), false);
         assert_eq!(contract.borrower_acceptance(), true);
         // Set sender to lender
-        let spenderExternal = ext_builder().sender(LENDER_ADDR).build();
-        set_external(Box::new(spenderExternal));
+        ext_update(|e| e.sender(LENDER_ADDR));
         assert_eq!(contract.accept(), true);
-        let ext_calls = get_external::<ExternalInstance>().calls();
+        let ext_calls = ext_get().calls();
         assert_eq!(ext_calls.len(), 2, "2 transfer calls expected");
         let security_transfer = &ext_calls[0];
         let loan_transfer = &ext_calls[1];
@@ -504,19 +487,17 @@ mod tests {
     #[test]
     #[should_panic]
     fn should_panic_if_contract_cant_transfer_loan_token() {
-        set_external(Box::new(ExternalBuilder::new()
+        ext_reset(|e| e
             .sender(BORROWER_ADDR)
             .timestamp(5)
-            .endpoint(LOAN_TOKEN_ADDR,
-                make_token_endpoint(TokenMock::default().with_transfer_from(false)))
-            .endpoint(SECURITY_TOKEN_ADDR,
-                make_token_endpoint(TokenMock::default().with_transfer_from(true)))
-            .build()));
+            .endpoint(LOAN_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer_from(false)).into())
+            .endpoint(SECURITY_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer_from(true)).into())
+        );
+
         let mut contract = default_contract();
         assert_eq!(contract.accept(), false);
         // Set sender to lender
-        let spenderExternal = ext_builder().sender(LENDER_ADDR).build();
-        set_external(Box::new(spenderExternal));
+        ext_reset(|e| e.sender(LENDER_ADDR));
         // Should panic because contact can't transfer amount of LOAN_TOKEN for some reason
         contract.accept();
     }
@@ -524,19 +505,17 @@ mod tests {
     #[test]
     #[should_panic]
     fn should_panic_if_contract_cant_transfer_security_token() {
-        set_external(Box::new(ExternalBuilder::new()
+        ext_reset(|e| e
             .sender(BORROWER_ADDR)
             .timestamp(5)
-            .endpoint(LOAN_TOKEN_ADDR,
-                make_token_endpoint(TokenMock::default().with_transfer_from(true)))
-            .endpoint(SECURITY_TOKEN_ADDR,
-                make_token_endpoint(TokenMock::default().with_transfer_from(false)))
-            .build()));
+            .endpoint(LOAN_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer_from(true)).into())
+            .endpoint(SECURITY_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer_from(false)).into())
+        );
+
         let mut contract = default_contract();
         assert_eq!(contract.accept(), false);
         // Set sender to lender
-        let spenderExternal = ext_builder().sender(LENDER_ADDR).build();
-        set_external(Box::new(spenderExternal));
+        ext_update(|e| e.sender(LENDER_ADDR));
         // Should panic because contact can't transfer amount of LOAN_TOKEN for some reason
         contract.accept();
     }
@@ -544,10 +523,7 @@ mod tests {
     #[test]
     fn should_suicide_if_activation_deadline_came() {
         let mut contract = default_contract();
-        set_external(Box::new(ExternalBuilder::new()
-            .sender(BORROWER_ADDR)
-            .timestamp(11)
-            .build()));
+        ext_reset(|e| e.sender(BORROWER_ADDR).timestamp(11));
         assert_eq!(contract.accept(), false);
     }
 
@@ -556,25 +532,22 @@ mod tests {
     #[should_panic]
     fn should_panic_if_terminate_before_accept() {
         let mut contract = default_contract();
-        set_external(Box::new(ExternalBuilder::new()
-            .sender(BORROWER_ADDR)
-            .timestamp(5)
-            .build()));
+        ext_reset(|e| e.sender(BORROWER_ADDR).timestamp(5));
         contract.terminate();
     }
 
     #[test]
     fn should_terminate_by_borrower() {
         let mut contract = active_contract();
-        set_external(Box::new(ExternalBuilder::new()
+        ext_reset(|e| e
             .sender(BORROWER_ADDR)
             .timestamp(15)
-            .endpoint(LOAN_TOKEN_ADDR, make_token_endpoint(TokenMock::default().with_transfer_from(true)))
-            .endpoint(SECURITY_TOKEN_ADDR, make_token_endpoint(TokenMock::default().with_transfer(true)))
-            .build()));
+            .endpoint(LOAN_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer_from(true)).into())
+            .endpoint(SECURITY_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer(true)).into())
+        );
 
         contract.terminate();
-        let ext_calls = get_external::<ExternalInstance>().calls();
+        let ext_calls = ext_get().calls();
         assert_eq!(ext_calls.len(), 2, "2 transfer calls expected");
 
         let loan_transfer = &ext_calls[0];
@@ -595,25 +568,22 @@ mod tests {
     #[should_panic]
     fn should_not_be_able_to_terminate_by_anybody_exept_borrower_if_deadline_hasnt_came() {
         let mut contract = active_contract();
-        set_external(Box::new(ExternalBuilder::new()
-            .sender(LENDER_ADDR)
-            .timestamp(15)
-            .build()));
+        ext_reset(|e| e.sender(LENDER_ADDR).timestamp(15));
         contract.terminate();
     }
 
     #[test]
     fn can_be_terminated_if_deadline() {
         let mut contract = active_contract();
-        set_external(Box::new(ExternalBuilder::new()
+        ext_reset(|e| e
             .sender(Address::new()) // by anybody
             .timestamp(25)
-            .endpoint(SECURITY_TOKEN_ADDR, make_token_endpoint(TokenMock::default().with_transfer(true)))
-            .build()));
+            .endpoint(SECURITY_TOKEN_ADDR, TokenEndpoint::new(TokenMock::default().with_transfer(true)).into())
+        );
 
         contract.terminate();
 
-        let ext_calls = get_external::<ExternalInstance>().calls();
+        let ext_calls = ext_get().calls();
         assert_eq!(ext_calls.len(), 1, "1 transfer call expected");
         let security_transfer = &ext_calls[0];
         assert_eq!(security_transfer.address, SECURITY_TOKEN_ADDR);
