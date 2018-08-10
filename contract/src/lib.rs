@@ -1,9 +1,10 @@
 #![cfg_attr(not(feature="std"), no_main)]
 #![cfg_attr(not(feature="std"), no_std)]
 
-#![feature(proc_macro)]
-#![feature(alloc)]
+#![feature(use_extern_macros)]
+#![feature(proc_macro_gen)]
 #![allow(non_snake_case)]
+#![feature(alloc)]
 
 extern crate alloc;
 extern crate bigint;
@@ -304,7 +305,6 @@ impl RepoContract for RepoContractInstance {
 }
 
 #[cfg(test)]
-#[macro_use]
 extern crate pwasm_test;
 
 #[cfg(test)]
