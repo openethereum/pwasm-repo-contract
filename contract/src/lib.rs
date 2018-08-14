@@ -472,13 +472,12 @@ mod tests {
 		assert_eq!(loan_transfer.address, LOAN_TOKEN_ADDR);
 
 		// Check transfers
-		assert_eq!(Address::from(&security_transfer.input[4..24]), BORROWER_ADDR);
-		assert_eq!(Address::from(&security_transfer.input[36..56]), CONTRACT_ADDR);
+		assert_eq!(Address::from(H256::from(&security_transfer.input[4..36])), BORROWER_ADDR);
+		assert_eq!(Address::from(H256::from(&security_transfer.input[36..68])), CONTRACT_ADDR);
 		assert_eq!(U256::from(H256::from(&security_transfer.input[68..100])), 50000.into());
 
-		assert_eq!(Address::from(&loan_transfer.input[4..24]), LENDER_ADDR);
-		assert_eq!(Address::from(&loan_transfer.input[36..56]), BORROWER_ADDR);
-
+		assert_eq!(Address::from(H256::from(&loan_transfer.input[4..36])), LENDER_ADDR);
+		assert_eq!(Address::from(H256::from(&loan_transfer.input[36..68])), BORROWER_ADDR);
 		assert_eq!(U256::from(H256::from(&loan_transfer.input[68..100])), 10000.into());
 
 		assert_eq!(contract.lender_acceptance(), true);
@@ -557,11 +556,11 @@ mod tests {
 		assert_eq!(loan_transfer.address, LOAN_TOKEN_ADDR);
 
 		// Check transfers
-		assert_eq!(Address::from(&security_transfer.input[4..24]), BORROWER_ADDR);
+		assert_eq!(Address::from(H256::from(&security_transfer.input[4..36])), BORROWER_ADDR);
 		assert_eq!(U256::from(H256::from(&security_transfer.input[36..68])), 50000.into());
 
-		assert_eq!(Address::from(&loan_transfer.input[4..24]), BORROWER_ADDR);
-		assert_eq!(Address::from(&loan_transfer.input[36..56]), LENDER_ADDR);
+		assert_eq!(Address::from(H256::from(&loan_transfer.input[4..36])), BORROWER_ADDR);
+		assert_eq!(Address::from(H256::from(&loan_transfer.input[36..68])), LENDER_ADDR);
 		assert_eq!(U256::from(H256::from(&loan_transfer.input[68..100])), 10300.into()); // 10000 + 300 of interest
 	}
 
@@ -589,7 +588,7 @@ mod tests {
 		let security_transfer = &ext_calls[0];
 		assert_eq!(security_transfer.address, SECURITY_TOKEN_ADDR);
 		// Check transfers
-		assert_eq!(Address::from(&security_transfer.input[4..24]), LENDER_ADDR);
+		assert_eq!(Address::from(H256::from(&security_transfer.input[4..36])), LENDER_ADDR);
 		assert_eq!(U256::from(H256::from(&security_transfer.input[36..68])), 50000.into());
 	}
 }
