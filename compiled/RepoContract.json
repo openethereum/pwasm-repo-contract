@@ -5,7 +5,7 @@
     "inputs": [],
     "outputs": [
       {
-        "name": "returnValue",
+        "name": "returnValue0",
         "type": "bool"
       }
     ],
@@ -17,11 +17,155 @@
     "inputs": [],
     "outputs": [
       {
-        "name": "returnValue",
+        "name": "returnValue0",
         "type": "bool"
       }
     ],
     "constant": false
+  },
+  {
+    "type": "function",
+    "name": "borrower",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "address"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "lender",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "address"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "loan_token",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "address"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "security_token",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "address"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "loan_amount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "uint256"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "security_amount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "uint256"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "interest_rate",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "uint256"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "activation_deadline",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "uint64"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "return_deadline",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "uint64"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "borrower_acceptance",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "bool"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "lender_acceptance",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "bool"
+      }
+    ],
+    "constant": true
+  },
+  {
+    "type": "function",
+    "name": "is_active",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "returnValue0",
+        "type": "bool"
+      }
+    ],
+    "constant": true
   },
   {
     "type": "event",
