@@ -102,6 +102,30 @@ pub trait RepoContract {
 		return_deadline: u64);
 	fn accept(&mut self) -> bool;
 	fn terminate(&mut self) -> bool;
+	#[constant]
+	fn borrower(&mut self) -> Address;
+	#[constant]
+	fn lender(&mut self) -> Address;
+	#[constant]
+	fn loan_token(&mut self) -> Address;
+	#[constant]
+	fn security_token(&mut self) -> Address;
+	#[constant]
+	fn loan_amount(&mut self) -> U256;
+	#[constant]
+	fn security_amount(&mut self) -> U256;
+	#[constant]
+	fn interest_rate(&mut self) -> U256;
+	#[constant]
+	fn activation_deadline(&mut self) -> u64;
+	#[constant]
+	fn return_deadline(&mut self) -> u64;
+	#[constant]
+	fn borrower_acceptance(&mut self) -> bool;
+	#[constant]
+	fn lender_acceptance(&mut self) -> bool;
+	#[constant]
+	fn is_active(&mut self) -> bool;
 	#[event]
 	fn LenderAcceptance(&mut self);
 	#[event]
@@ -137,65 +161,6 @@ impl RepoContractInstance {
 			storage: Storage::with_capacity(10)
 		}
 	}
-	pub fn borrower_address(&mut self) -> Address {
-		H256::from(self.storage.read(&BORROWER_KEY)).into()
-	}
-
-	pub fn lender_address(&mut self) -> Address {
-		H256::from(self.storage.read(&LENDER_KEY)).into()
-	}
-
-	pub fn loan_token_address(&mut self) -> Address {
-		H256::from(self.storage.read(&LOAN_TOKEN_KEY)).into()
-	}
-
-	pub fn security_token_address(&mut self) -> Address {
-		H256::from(self.storage.read(&SECURITY_TOKEN_KEY)).into()
-	}
-
-	pub fn loan_amount(&mut self) -> U256 {
-		self.storage.read(&LOAN_AMOUNT_KEY).into()
-	}
-
-	pub fn security_amount(&mut self) -> U256 {
-		self.storage.read(&SECURITY_AMOUNT_KEY).into()
-	}
-
-	pub fn interest_rate(&mut self) -> U256 {
-		self.storage.read(&INTEREST_RATE_KEY).into()
-	}
-
-	// Activation deadline timestamp
-	pub fn activation_deadline(&mut self) -> u64 {
-		U256::from(self.storage.read(&ACTIVATION_DEADLINE_KEY)).into()
-	}
-
-	// Return deadline timestamp
-	pub fn return_deadline(&mut self) -> u64 {
-		U256::from(self.storage.read(&RETURN_DEADLINE_KEY)).into()
-	}
-
-	pub fn borrower_acceptance(&mut self) -> bool {
-		let value = U256::from(self.storage.read(&BORROW_ACCEPTED_KEY));
-		if value == 0.into() {
-			false
-		} else {
-			true
-		}
-	}
-
-	pub fn lender_acceptance(&mut self) -> bool {
-		let value = U256::from(self.storage.read(&LEND_ACCEPTED_KEY));
-		if value == 0.into() {
-			false
-		} else {
-			true
-		}
-	}
-
-	pub fn is_active(&mut self) -> bool {
-		self.borrower_acceptance() && self.lender_acceptance()
-	}
 
 	pub fn suicide(&mut self, sender: &Address) -> bool {
 		self.Suicide();
@@ -230,6 +195,64 @@ impl RepoContract for RepoContractInstance {
 		self.storage.write(&RETURN_DEADLINE_KEY, &U256::from(return_deadline).into());
 	}
 
+	fn borrower(&mut self) -> Address {
+		H256::from(self.storage.read(&BORROWER_KEY)).into()
+	}
+
+	fn lender(&mut self) -> Address {
+		H256::from(self.storage.read(&LENDER_KEY)).into()
+	}
+
+	fn loan_token(&mut self) -> Address {
+		H256::from(self.storage.read(&LOAN_TOKEN_KEY)).into()
+	}
+
+	fn security_token(&mut self) -> Address {
+		H256::from(self.storage.read(&SECURITY_TOKEN_KEY)).into()
+	}
+
+	fn loan_amount(&mut self) -> U256 {
+		self.storage.read(&LOAN_AMOUNT_KEY).into()
+	}
+
+	fn security_amount(&mut self) -> U256 {
+		self.storage.read(&SECURITY_AMOUNT_KEY).into()
+	}
+
+	fn interest_rate(&mut self) -> U256 {
+		self.storage.read(&INTEREST_RATE_KEY).into()
+	}
+
+	fn activation_deadline(&mut self) -> u64 {
+		U256::from(self.storage.read(&ACTIVATION_DEADLINE_KEY)).into()
+	}
+
+	fn return_deadline(&mut self) -> u64 {
+		U256::from(self.storage.read(&RETURN_DEADLINE_KEY)).into()
+	}
+
+	fn borrower_acceptance(&mut self) -> bool {
+		let value = U256::from(self.storage.read(&BORROW_ACCEPTED_KEY));
+		if value == 0.into() {
+			false
+		} else {
+			true
+		}
+	}
+
+	fn lender_acceptance(&mut self) -> bool {
+		let value = U256::from(self.storage.read(&LEND_ACCEPTED_KEY));
+		if value == 0.into() {
+			false
+		} else {
+			true
+		}
+	}
+
+	fn is_active(&mut self) -> bool {
+		self.borrower_acceptance() && self.lender_acceptance()
+	}
+
 	// Tries to activate contract
 	fn accept(&mut self) -> bool {
 		let sender = eth::sender();
@@ -239,8 +262,8 @@ impl RepoContract for RepoContractInstance {
 		if eth::timestamp() > self.activation_deadline() {
 			self.suicide(&sender);
 		}
-		let lender_address = self.lender_address();
-		let borrower_address = self.borrower_address();
+		let lender_address = self.lender();
+		let borrower_address = self.borrower();
 
 		// Accept by borrower
 		if sender == borrower_address {
@@ -260,8 +283,8 @@ impl RepoContract for RepoContractInstance {
 			return false;
 		}
 
-		let mut loan_token = Token::new(self.loan_token_address());
-		let mut security_token = Token::new(self.security_token_address());
+		let mut loan_token = Token::new(self.loan_token()).gas(100000);
+		let mut security_token = Token::new(self.security_token()).gas(100000);
 		let loan_amount = self.loan_amount();
 		let security_amount = self.security_amount();
 
@@ -279,10 +302,10 @@ impl RepoContract for RepoContractInstance {
 		if !self.is_active() && eth::timestamp() > self.activation_deadline() {
 			self.suicide(&sender);
 		}
-		let lender_address = self.lender_address();
-		let borrower_address = self.borrower_address();
-		let mut loan_token = Token::new(self.loan_token_address());
-		let mut security_token = Token::new(self.security_token_address());
+		let lender_address = self.lender();
+		let borrower_address = self.borrower();
+		let mut loan_token = Token::new(self.loan_token()).gas(100000);
+		let mut security_token = Token::new(self.security_token()).gas(100000);
 		let loan_amount = self.loan_amount();
 		let security_amount = self.security_amount();
 		let interest_amount = (loan_amount / DIVISOR) * self.interest_rate();
@@ -438,10 +461,10 @@ mod tests {
 			activation_deadline,
 			return_deadline);
 
-		assert_eq!(contract.borrower_address(), BORROWER_ADDR);
-		assert_eq!(contract.lender_address(), LENDER_ADDR);
-		assert_eq!(contract.loan_token_address(), LOAN_TOKEN_ADDR);
-		assert_eq!(contract.security_token_address(), SECURITY_TOKEN_ADDR);
+		assert_eq!(contract.borrower(), BORROWER_ADDR);
+		assert_eq!(contract.lender(), LENDER_ADDR);
+		assert_eq!(contract.loan_token(), LOAN_TOKEN_ADDR);
+		assert_eq!(contract.security_token(), SECURITY_TOKEN_ADDR);
 		assert_eq!(contract.loan_amount(), loan_amount);
 		assert_eq!(contract.security_amount(), security_amount);
 		assert_eq!(contract.interest_rate(), interest_rate);
